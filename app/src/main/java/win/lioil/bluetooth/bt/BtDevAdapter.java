@@ -1,5 +1,6 @@
 package win.lioil.bluetooth.bt;
 
+import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.util.Log;
@@ -16,7 +17,7 @@ import java.util.List;
 import java.util.Set;
 
 import win.lioil.bluetooth.R;
-
+@SuppressLint("MissingPermission")
 public class BtDevAdapter extends RecyclerView.Adapter<BtDevAdapter.VH> {
     private static final String TAG = BtDevAdapter.class.getSimpleName();
     private final List<BluetoothDevice> mDevices = new ArrayList<>();

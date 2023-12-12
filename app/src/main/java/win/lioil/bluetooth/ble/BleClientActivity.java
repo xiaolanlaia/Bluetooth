@@ -20,7 +20,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.Arrays;
 import java.util.UUID;
 
-import win.lioil.bluetooth.APP;
+import win.lioil.bluetooth.MyApplication;
 import win.lioil.bluetooth.R;
 
 /**
@@ -147,7 +147,7 @@ public class BleClientActivity extends Activity {
     // 扫描BLE
     public void reScan(View view) {
         if (mBleDevAdapter.isScanning) {
-            APP.toast("正在扫描...", 0);
+            MyApplication.toast("正在扫描...", 0);
         } else {
             mBleDevAdapter.reScan();
         }
@@ -194,12 +194,12 @@ public class BleClientActivity extends Activity {
     // 获取Gatt服务
     private BluetoothGattService getGattService(UUID uuid) {
         if (!isConnected) {
-            APP.toast("没有连接", 0);
+            MyApplication.toast("没有连接", 0);
             return null;
         }
         BluetoothGattService service = mBluetoothGatt.getService(uuid);
         if (service == null) {
-            APP.toast("没有找到服务UUID=" + uuid, 0);
+            MyApplication.toast("没有找到服务UUID=" + uuid, 0);
         }
         return service;
     }
@@ -212,7 +212,7 @@ public class BleClientActivity extends Activity {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                APP.toast(msg, 0);
+                MyApplication.toast(msg, 0);
                 mTips.append(msg + "\n\n");
             }
         });

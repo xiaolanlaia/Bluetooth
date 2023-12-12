@@ -9,6 +9,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 
+
 import win.lioil.bluetooth.ble.BleClientActivity;
 import win.lioil.bluetooth.ble.BleServerActivity;
 import win.lioil.bluetooth.bt.BtClientActivity;
@@ -20,11 +21,29 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        //todo wjf 区分
+        // Android 6.0动态请求权限
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            String[] permissions = {Manifest.permission.WRITE_EXTERNAL_STORAGE
+                    , Manifest.permission.BLUETOOTH
+                    , Manifest.permission.BLUETOOTH_ADMIN
+                    , Manifest.permission.READ_EXTERNAL_STORAGE
+                    , Manifest.permission.BLUETOOTH_CONNECT
+                    , Manifest.permission.BLUETOOTH_SCAN
+                    , Manifest.permission.BLUETOOTH_ADVERTISE
+                    , Manifest.permission.ACCESS_FINE_LOCATION
+                    , Manifest.permission.ACCESS_COARSE_LOCATION};
+            for (String str : permissions) {
+                if (checkSelfPermission(str) != PackageManager.PERMISSION_GRANTED) {
+                    requestPermissions(permissions, 111);
+                    break;
+                }
+            }
+        }
         // 检查蓝牙开关
         BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
         if (adapter == null) {
-            APP.toast("本机没有找到蓝牙硬件或驱动！", 0);
+            MyApplication.toast("本机没有找到蓝牙硬件或驱动！", 0);
             finish();
             return;
         } else {
@@ -38,26 +57,12 @@ public class MainActivity extends Activity {
 
         // 检查是否支持BLE蓝牙
         if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
-            APP.toast("本机不支持低功耗蓝牙！", 0);
+            MyApplication.toast("本机不支持低功耗蓝牙！", 0);
             finish();
             return;
         }
 
-        // Android 6.0动态请求权限
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            String[] permissions = {Manifest.permission.WRITE_EXTERNAL_STORAGE
-                    , Manifest.permission.BLUETOOTH
-                    , Manifest.permission.BLUETOOTH_ADMIN
-                    , Manifest.permission.READ_EXTERNAL_STORAGE
-                    , Manifest.permission.ACCESS_FINE_LOCATION
-                    , Manifest.permission.ACCESS_COARSE_LOCATION};
-            for (String str : permissions) {
-                if (checkSelfPermission(str) != PackageManager.PERMISSION_GRANTED) {
-                    requestPermissions(permissions, 111);
-                    break;
-                }
-            }
-        }
+
     }
 
     public void btClient(View view) {

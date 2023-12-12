@@ -24,7 +24,7 @@ import android.widget.TextView;
 import java.util.Arrays;
 import java.util.UUID;
 
-import win.lioil.bluetooth.APP;
+import win.lioil.bluetooth.MyApplication;
 import win.lioil.bluetooth.R;
 
 /**
@@ -203,7 +203,7 @@ public class BleServerActivity extends Activity {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                APP.toast(msg, 0);
+                MyApplication.toast(msg, 0);
                 mTips.append(msg + "\n\n");
             }
         });
