@@ -1,83 +1,76 @@
-package win.lioil.bluetooth;
+package win.lioil.bluetooth
 
-import android.Manifest;
-import android.app.Activity;
-import android.bluetooth.BluetoothAdapter;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.os.Build;
-import android.os.Bundle;
-import android.view.View;
+import android.Manifest
+import android.app.Activity
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
+import android.os.Bundle
+import android.view.View
+import win.lioil.bluetooth.ble.BleClientActivity
+import win.lioil.bluetooth.ble.BleServerActivity
+import win.lioil.bluetooth.bt.BtClientActivity
+import win.lioil.bluetooth.bt.BtServerActivity
+import win.lioil.bluetooth.util.BlueUtils
+import win.lioil.bluetooth.util.PermissionUtil
 
-
-import win.lioil.bluetooth.ble.BleClientActivity;
-import win.lioil.bluetooth.ble.BleServerActivity;
-import win.lioil.bluetooth.bt.BtClientActivity;
-import win.lioil.bluetooth.bt.BtServerActivity;
-
-public class MainActivity extends Activity {
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        //todo wjf 区分
-        // Android 6.0动态请求权限
+class MainActivity : Activity() {
+    private val REQUEST_CODE = 1
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+        val permissionList = ArrayList<String>()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            String[] permissions = {Manifest.permission.WRITE_EXTERNAL_STORAGE
-                    , Manifest.permission.BLUETOOTH
-                    , Manifest.permission.BLUETOOTH_ADMIN
-                    , Manifest.permission.READ_EXTERNAL_STORAGE
-                    , Manifest.permission.BLUETOOTH_CONNECT
-                    , Manifest.permission.BLUETOOTH_SCAN
-                    , Manifest.permission.BLUETOOTH_ADVERTISE
-                    , Manifest.permission.ACCESS_FINE_LOCATION
-                    , Manifest.permission.ACCESS_COARSE_LOCATION};
-            for (String str : permissions) {
-                if (checkSelfPermission(str) != PackageManager.PERMISSION_GRANTED) {
-                    requestPermissions(permissions, 111);
-                    break;
-                }
-            }
+            permissionList.add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            permissionList.add(Manifest.permission.BLUETOOTH)
+            permissionList.add(Manifest.permission.BLUETOOTH_ADMIN)
+            permissionList.add(Manifest.permission.READ_EXTERNAL_STORAGE)
+            permissionList.add(Manifest.permission.ACCESS_FINE_LOCATION)
+            permissionList.add(Manifest.permission.ACCESS_COARSE_LOCATION)
+
         }
-        // 检查蓝牙开关
-        BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
-        if (adapter == null) {
-            MyApplication.toast("本机没有找到蓝牙硬件或驱动！", 0);
-            finish();
-            return;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S){
+            permissionList.add(Manifest.permission.BLUETOOTH_CONNECT)
+            permissionList.add(Manifest.permission.BLUETOOTH_SCAN)
+            permissionList.add(Manifest.permission.BLUETOOTH_ADVERTISE)
+        }
+        PermissionUtil.requestPermissions(this,permissionList,REQUEST_CODE)
+
+
+        if (BlueUtils.instance.isSupport()) {
+            MyApplication.toast("本机没有找到蓝牙硬件或驱动！", 0)
+            finish()
+            return
         } else {
-            if (!adapter.isEnabled()) {
+            if (!BlueUtils.instance.isEnabled()) {
                 //直接开启蓝牙
-                adapter.enable();
+                BlueUtils.instance.enable()
                 //跳转到设置界面
                 //startActivityForResult(new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE), 112);
             }
         }
 
         // 检查是否支持BLE蓝牙
-        if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
-            MyApplication.toast("本机不支持低功耗蓝牙！", 0);
-            finish();
-            return;
+        if (!packageManager.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
+            MyApplication.toast("本机不支持低功耗蓝牙！", 0)
+            finish()
+            return
         }
-
-
     }
 
-    public void btClient(View view) {
-        startActivity(new Intent(this, BtClientActivity.class));
+    fun btClient(view: View?) {
+        startActivity(Intent(this, BtClientActivity::class.java))
     }
 
-    public void btServer(View view) {
-        startActivity(new Intent(this, BtServerActivity.class));
+    fun btServer(view: View?) {
+        startActivity(Intent(this, BtServerActivity::class.java))
     }
 
-    public void bleClient(View view) {
-        startActivity(new Intent(this, BleClientActivity.class));
+    fun bleClient(view: View?) {
+        startActivity(Intent(this, BleClientActivity::class.java))
     }
 
-    public void bleServer(View view) {
-        startActivity(new Intent(this, BleServerActivity.class));
+    fun bleServer(view: View?) {
+        startActivity(Intent(this, BleServerActivity::class.java))
     }
 }
