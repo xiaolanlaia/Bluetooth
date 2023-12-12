@@ -39,12 +39,14 @@ public class BtReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         String action = intent.getAction();
-        if (action == null)
+        if (action == null) {
             return;
+        }
         Log.i(TAG, "===" + action);
         BluetoothDevice dev = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-        if (dev != null)
+        if (dev != null) {
             Log.i(TAG, "BluetoothDevice: " + dev.getName() + ", " + dev.getAddress());
+        }
         switch (action) {
             case BluetoothAdapter.ACTION_STATE_CHANGED:
                 int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, 0);

@@ -41,29 +41,34 @@ public class BtServerActivity extends Activity implements BtBase.Listener {
     public void sendMsg(View view) {
         if (mServer.isConnected(null)) {
             String msg = mInputMsg.getText().toString();
-            if (TextUtils.isEmpty(msg))
+            if (TextUtils.isEmpty(msg)) {
                 APP.toast("消息不能空", 0);
-            else
+            } else {
                 mServer.sendMsg(msg);
-        } else
+            }
+        } else {
             APP.toast("没有连接", 0);
+        }
     }
 
     public void sendFile(View view) {
         if (mServer.isConnected(null)) {
             String filePath = mInputFile.getText().toString();
-            if (TextUtils.isEmpty(filePath) || !new File(filePath).isFile())
+            if (TextUtils.isEmpty(filePath) || !new File(filePath).isFile()) {
                 APP.toast("文件无效", 0);
-            else
+            } else {
                 mServer.sendFile(filePath);
-        } else
+            }
+        } else {
             APP.toast("没有连接", 0);
+        }
     }
 
     @Override
     public void socketNotify(int state, final Object obj) {
-        if (isDestroyed())
+        if (isDestroyed()) {
             return;
+        }
         String msg = null;
         switch (state) {
             case BtBase.Listener.CONNECTED:

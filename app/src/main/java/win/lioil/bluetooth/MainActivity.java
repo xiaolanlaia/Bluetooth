@@ -46,7 +46,10 @@ public class MainActivity extends Activity {
         // Android 6.0动态请求权限
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             String[] permissions = {Manifest.permission.WRITE_EXTERNAL_STORAGE
+                    , Manifest.permission.BLUETOOTH
+                    , Manifest.permission.BLUETOOTH_ADMIN
                     , Manifest.permission.READ_EXTERNAL_STORAGE
+                    , Manifest.permission.ACCESS_FINE_LOCATION
                     , Manifest.permission.ACCESS_COARSE_LOCATION};
             for (String str : permissions) {
                 if (checkSelfPermission(str) != PackageManager.PERMISSION_GRANTED) {

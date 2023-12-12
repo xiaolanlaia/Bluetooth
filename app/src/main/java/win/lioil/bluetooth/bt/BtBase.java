@@ -3,6 +3,7 @@ package win.lioil.bluetooth.bt;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.os.Environment;
+import android.util.Log;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -39,12 +40,14 @@ public class BtBase {
     void loopRead(BluetoothSocket socket) {
         mSocket = socket;
         try {
-            if (!mSocket.isConnected())
+            if (!mSocket.isConnected()) {
                 mSocket.connect();
+            }
             notifyUI(Listener.CONNECTED, mSocket.getRemoteDevice());
             mOut = new DataOutputStream(mSocket.getOutputStream());
             DataInputStream in = new DataInputStream(mSocket.getInputStream());
             isRead = true;
+            Log.d("__FILE_PATH",FILE_PATH);
             while (isRead) { //死循环读取
                 switch (in.readInt()) {
                     case FLAG_MSG: //读取短消息
@@ -64,8 +67,9 @@ public class BtBase {
                         while ((r = in.read(b)) != -1) {
                             out.write(b, 0, r);
                             len += r;
-                            if (len >= fileLen)
+                            if (len >= fileLen) {
                                 break;
+                            }
                         }
                         notifyUI(Listener.MSG, "文件接收完成(存放在:" + FILE_PATH + ")");
                         break;
@@ -80,7 +84,9 @@ public class BtBase {
      * 发送短消息
      */
     public void sendMsg(String msg) {
-        if (checkSend()) return;
+        if (checkSend()) {
+            return;
+        }
         isSending = true;
         try {
             mOut.writeInt(FLAG_MSG); //消息标记
@@ -97,7 +103,9 @@ public class BtBase {
      * 发送文件
      */
     public void sendFile(final String filePath) {
-        if (checkSend()) return;
+        if (checkSend()) {
+            return;
+        }
         isSending = true;
         Util.EXECUTOR.execute(new Runnable() {
             @Override
@@ -111,8 +119,9 @@ public class BtBase {
                     int r;
                     byte[] b = new byte[4 * 1024];
                     notifyUI(Listener.MSG, "正在发送文件(" + filePath + "),请稍后...");
-                    while ((r = in.read(b)) != -1)
+                    while ((r = in.read(b)) != -1) {
                         mOut.write(b, 0, r);
+                    }
                     mOut.flush();
                     notifyUI(Listener.MSG, "文件发送完成.");
                 } catch (Throwable e) {
@@ -148,8 +157,9 @@ public class BtBase {
      */
     public boolean isConnected(BluetoothDevice dev) {
         boolean connected = (mSocket != null && mSocket.isConnected());
-        if (dev == null)
+        if (dev == null) {
             return connected;
+        }
         return connected && mSocket.getRemoteDevice().equals(dev);
     }
 
@@ -167,8 +177,9 @@ public class BtBase {
             @Override
             public void run() {
                 try {
-                    if (mListener != null)
+                    if (mListener != null) {
                         mListener.socketNotify(state, obj);
+                    }
                 } catch (Throwable e) {
                     e.printStackTrace();
                 }

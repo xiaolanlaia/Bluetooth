@@ -11,6 +11,7 @@
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <!--Android 6.0及后续版本扫描蓝牙,需要定位权限(进入GPS设置,可以看到蓝牙定位)-->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION " />
 
     <!-- required = true 表示手机必须支持BLE，否则无法安装运行-->
     <uses-feature
@@ -28,7 +29,9 @@
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
 
-        <activity android:name=".MainActivity">
+        <activity android:name=".MainActivity"
+            android:exported="true"
+            >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -39,19 +42,23 @@
         <activity
             android:name=".bt.BtClientActivity"
             android:label="@string/bt_client"
+            android:exported="true"
             android:windowSoftInputMode="stateAlwaysHidden|adjustPan" />
 
         <activity
             android:name=".bt.BtServerActivity"
             android:label="@string/bt_server"
+            android:exported="true"
             android:windowSoftInputMode="stateAlwaysHidden" />
 
         <activity
             android:name=".ble.BleClientActivity"
+            android:exported="true"
             android:label="@string/ble_client" />
 
         <activity
             android:name=".ble.BleServerActivity"
+            android:exported="true"
             android:label="@string/ble_server" />
 
     </application>

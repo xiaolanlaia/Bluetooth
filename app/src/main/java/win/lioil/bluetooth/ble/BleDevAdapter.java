@@ -6,13 +6,14 @@ import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanResult;
 import android.os.Handler;
-import android.support.annotation.NonNull;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +34,7 @@ public class BleDevAdapter extends RecyclerView.Adapter<BleDevAdapter.VH> {
             if (!mDevices.contains(dev)) {
                 mDevices.add(dev);
                 notifyDataSetChanged();
-                Log.i(TAG, "onScanResult: " + result); // result.getScanRecord() 获取BLE广播数据
+                Log.i("__onScanResult", "onScanResult: " + result); // result.getScanRecord() 获取BLE广播数据
             }
         }
     };
@@ -52,19 +53,26 @@ public class BleDevAdapter extends RecyclerView.Adapter<BleDevAdapter.VH> {
 
     // 扫描BLE蓝牙(不会扫描经典蓝牙)
     private void scanBle() {
-        isScanning = true;
+        try {
+            isScanning = true;
 //        BluetoothAdapter bluetoothAdapter = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE).getDefaultAdapter();
-        BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        final BluetoothLeScanner bluetoothLeScanner = bluetoothAdapter.getBluetoothLeScanner();
-        // Android5.0新增的扫描API，扫描返回的结果更友好，比如BLE广播数据以前是byte[] scanRecord，而新API帮我们解析成ScanRecord类
-        bluetoothLeScanner.startScan(mScanCallback);
-        mHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                bluetoothLeScanner.stopScan(mScanCallback); //停止扫描
-                isScanning = false;
-            }
-        }, 3000);
+            BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+            final BluetoothLeScanner bluetoothLeScanner = bluetoothAdapter.getBluetoothLeScanner();
+            // Android5.0新增的扫描API，扫描返回的结果更友好，比如BLE广播数据以前是byte[] scanRecord，而新API帮我们解析成ScanRecord类
+            bluetoothLeScanner.startScan(mScanCallback);
+            Log.d("__scanBle-1","1");
+            mHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    Log.d("__scanBle-2","1");
+                    bluetoothLeScanner.stopScan(mScanCallback); //停止扫描
+                    isScanning = false;
+                }
+            }, 3000);
+
+        } catch (Exception e){
+            Log.d("__scanBle-e",e.getMessage());
+        }
     }
 
     @NonNull
@@ -103,8 +111,9 @@ public class BleDevAdapter extends RecyclerView.Adapter<BleDevAdapter.VH> {
         public void onClick(View v) {
             int pos = getAdapterPosition();
             Log.d(TAG, "onClick, getAdapterPosition=" + pos);
-            if (pos >= 0 && pos < mDevices.size())
+            if (pos >= 0 && pos < mDevices.size()) {
                 mListener.onItemClick(mDevices.get(pos).dev);
+            }
         }
     }
 
@@ -123,8 +132,12 @@ public class BleDevAdapter extends RecyclerView.Adapter<BleDevAdapter.VH> {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
             BleDev bleDev = (BleDev) o;
             return Objects.equals(dev, bleDev.dev);
         }

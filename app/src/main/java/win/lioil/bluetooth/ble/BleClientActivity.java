@@ -9,12 +9,13 @@ import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothProfile;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
+
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.Arrays;
 import java.util.UUID;
@@ -58,8 +59,9 @@ public class BleClientActivity extends Activity {
                     StringBuilder allUUIDs = new StringBuilder("UUIDs={\nS=" + service.getUuid().toString());
                     for (BluetoothGattCharacteristic characteristic : service.getCharacteristics()) {
                         allUUIDs.append(",\nC=").append(characteristic.getUuid());
-                        for (BluetoothGattDescriptor descriptor : characteristic.getDescriptors())
+                        for (BluetoothGattDescriptor descriptor : characteristic.getDescriptors()) {
                             allUUIDs.append(",\nD=").append(descriptor.getUuid());
+                        }
                     }
                     allUUIDs.append("}");
                     Log.i(TAG, "onServicesDiscovered:" + allUUIDs.toString());
@@ -144,10 +146,11 @@ public class BleClientActivity extends Activity {
 
     // 扫描BLE
     public void reScan(View view) {
-        if (mBleDevAdapter.isScanning)
+        if (mBleDevAdapter.isScanning) {
             APP.toast("正在扫描...", 0);
-        else
+        } else {
             mBleDevAdapter.reScan();
+        }
     }
 
     // 注意：连续频繁读写数据容易失败，读写操作间隔最好200ms以上，或等待上次回调完成后再进行下次读写操作！
@@ -195,15 +198,17 @@ public class BleClientActivity extends Activity {
             return null;
         }
         BluetoothGattService service = mBluetoothGatt.getService(uuid);
-        if (service == null)
+        if (service == null) {
             APP.toast("没有找到服务UUID=" + uuid, 0);
+        }
         return service;
     }
 
     // 输出日志
     private void logTv(final String msg) {
-        if (isDestroyed())
+        if (isDestroyed()) {
             return;
+        }
         runOnUiThread(new Runnable() {
             @Override
             public void run() {

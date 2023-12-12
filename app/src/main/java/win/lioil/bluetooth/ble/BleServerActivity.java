@@ -179,23 +179,27 @@ public class BleServerActivity extends Activity {
         BluetoothGattCharacteristic characteristicWrite = new BluetoothGattCharacteristic(UUID_CHAR_WRITE,
                 BluetoothGattCharacteristic.PROPERTY_WRITE, BluetoothGattCharacteristic.PERMISSION_WRITE);
         service.addCharacteristic(characteristicWrite);
-        if (bluetoothManager != null)
+        if (bluetoothManager != null) {
             mBluetoothGattServer = bluetoothManager.openGattServer(this, mBluetoothGattServerCallback);
+        }
         mBluetoothGattServer.addService(service);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (mBluetoothLeAdvertiser != null)
+        if (mBluetoothLeAdvertiser != null) {
             mBluetoothLeAdvertiser.stopAdvertising(mAdvertiseCallback);
-        if (mBluetoothGattServer != null)
+        }
+        if (mBluetoothGattServer != null) {
             mBluetoothGattServer.close();
+        }
     }
 
     private void logTv(final String msg) {
-        if (isDestroyed())
+        if (isDestroyed()) {
             return;
+        }
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
