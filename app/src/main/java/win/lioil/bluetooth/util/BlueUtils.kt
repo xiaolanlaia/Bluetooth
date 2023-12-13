@@ -5,11 +5,16 @@ import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothServerSocket
 import android.bluetooth.BluetoothSocket
+import android.text.TextUtils
+import android.util.Log
 import win.lioil.bluetooth.MyApplication
 import win.lioil.bluetooth.bt.BtClientActivity
+import win.lioil.bluetooth.bt.BtServerActivity
+import java.io.DataInputStream
 import java.io.DataOutputStream
 import java.io.File
 import java.io.FileInputStream
+import java.io.FileOutputStream
 
 /**
  * @Description
@@ -31,6 +36,7 @@ class BlueUtils {
 
     //是否正在发送消息
     private var isSending = false
+    private var isRead = false
 
     private var dataOutputStream: DataOutputStream? = null
 
@@ -66,12 +72,12 @@ class BlueUtils {
     }
 
     //当前设备与指定设备是否连接
-    fun isConnected(dev: BluetoothDevice?): Boolean {
-        val connected = (bluetoothSocket != null && bluetoothSocket!!.isConnected)
+    fun isConnected(dev: BluetoothDevice?, isServer : Boolean): Boolean {
+        val connected = (getBluetoothSocket(isServer) != null && getBluetoothSocket(isServer)!!.isConnected)
         return if (dev == null) {
             connected
         } else {
-            connected && (bluetoothSocket!!.remoteDevice == dev)
+            connected && (getBluetoothSocket(isServer)!!.remoteDevice == dev)
         }
     }
 
@@ -84,6 +90,7 @@ class BlueUtils {
         if (!bluetoothSocket!!.isConnected) {
             bluetoothSocket!!.connect()
         }
+        dataOutputStream = DataOutputStream(bluetoothSocket?.outputStream)
         connectedDevice = device
     }
 
@@ -91,23 +98,22 @@ class BlueUtils {
     fun bluetoothServerSocket() : BluetoothServerSocket{
         //            mSSocket = adapter.listenUsingRfcommWithServiceRecord(TAG, SPP_UUID); //加密传输，Android强制执行配对，弹窗显示配对码
         //明文传输(不安全)，无需配对
-        bluetoothServerSocket = bluetoothAdapter.listenUsingInsecureRfcommWithServiceRecord(this.javaClass.simpleName, Constant.SPP_UUID)
+        bluetoothServerSocket = bluetoothAdapter.listenUsingInsecureRfcommWithServiceRecord("TAG", Constant.SPP_UUID)
 
+        Thread(Runnable {
+            bluetoothSocket = bluetoothServerSocket?.accept()
+            if (!bluetoothSocket!!.isConnected) {
+                bluetoothSocket!!.connect()
+            }
+            dataOutputStream = DataOutputStream(bluetoothSocket?.outputStream)
+
+            loopRead(true)
+        }).start()
         return bluetoothServerSocket!!
     }
 
     fun getBluetoothSocket(isServer : Boolean) : BluetoothSocket?{
-        return when(isServer){
-
-            true -> {
-                bluetoothServerSocket?.accept()
-            }
-
-            else ->{
-                dataOutputStream = DataOutputStream(bluetoothSocket!!.outputStream)
-                bluetoothSocket
-            }
-        }
+        return bluetoothSocket
     }
 
 
@@ -115,7 +121,18 @@ class BlueUtils {
     /**
      * 发送短消息
      */
-    fun sendMsg(msg: String) {
+    fun sendMsg(msg: String,isServer: Boolean) {
+        if (!isConnected(null,isServer)) {
+            MyApplication.toast("没有连接", 0)
+            return
+        }
+
+
+        if (TextUtils.isEmpty(msg)) {
+            MyApplication.toast("消息不能空", 0)
+            return
+        }
+
         if (checkSend()) {
             return
         }
@@ -125,7 +142,11 @@ class BlueUtils {
             dataOutputStream!!.writeInt(FLAG_MSG)
             dataOutputStream!!.writeUTF(msg)
             dataOutputStream!!.flush()
-            BtClientActivity.blueCallback?.socketNotify(MSG, "发送短消息：$msg")
+            if(isServer){
+                BtServerActivity.blueCallback?.socketNotify(MSG, "发送短消息：$msg")
+            }else{
+                BtClientActivity.blueCallback?.socketNotify(MSG, "发送短消息：$msg")
+            }
         } catch (e: Throwable) {
             close()
         }
@@ -135,7 +156,18 @@ class BlueUtils {
     /**
      * 发送文件
      */
-    fun sendFile(filePath: String) {
+    fun sendFile(filePath: String, isServer : Boolean) {
+
+        if (!isConnected(null,isServer)) {
+            MyApplication.toast("没有连接", 0)
+            return
+        }
+
+        if (TextUtils.isEmpty(filePath) || !File(filePath).isFile) {
+            MyApplication.toast("文件无效", 0)
+            return
+        }
+
         if (checkSend()) {
             return
         }
@@ -152,12 +184,21 @@ class BlueUtils {
                 dataOutputStream!!.writeLong(file.length())
                 var r: Int
                 val b = ByteArray(4 * 1024)
-                BtClientActivity.blueCallback?.socketNotify(MSG, "正在发送文件($filePath),请稍后...")
+                if(isServer){
+                    BtServerActivity.blueCallback?.socketNotify(MSG, "正在发送文件($filePath),请稍后...")
+                }else{
+                    BtClientActivity.blueCallback?.socketNotify(MSG, "正在发送文件($filePath),请稍后...")
+                }
                 while ((fileInputStream.read(b).also { r = it }) != -1) {
                     dataOutputStream!!.write(b, 0, r)
                 }
                 dataOutputStream!!.flush()
-                BtClientActivity.blueCallback?.socketNotify(MSG, "文件发送完成.")
+
+                if(isServer){
+                    BtServerActivity.blueCallback?.socketNotify(MSG, "文件发送完成.")
+                }else{
+                    BtClientActivity.blueCallback?.socketNotify(MSG, "文件发送完成.")
+                }
             } catch (e: Throwable) {
                 close()
             }
@@ -182,10 +223,64 @@ class BlueUtils {
         try {
             bluetoothSocket?.close()
             bluetoothServerSocket?.close()
+            isRead = false
+
         } catch (e: Throwable) {
             e.printStackTrace()
         }
     }
+
+
+
+    /**
+     * 循环读取对方数据(若没有数据，则阻塞等待)
+     */
+    fun loopRead(isServer : Boolean) {
+        val mSocket = getBluetoothSocket(isServer)
+        try {
+
+//            connectedDevice = mSocket?.remoteDevice
+            BtServerActivity.blueCallback?.socketNotify(CONNECTED, mSocket?.remoteDevice)
+            val dataInputStream = DataInputStream(mSocket?.inputStream)
+            isRead = true
+            //死循环读取
+            while (isRead) {
+                when (dataInputStream.readInt()) {
+                    FLAG_MSG -> {
+                        val msg = dataInputStream.readUTF()
+                        BtServerActivity.blueCallback?.socketNotify(MSG, "接收短消息：$msg")
+                    }
+
+                    FLAG_FILE -> {
+                        Util.mkdirs(Constant.FILE_PATH)
+                        //文件名
+                        val fileName = dataInputStream.readUTF()
+                        //文件长度
+                        val fileLen = dataInputStream.readLong()
+                        // 读取文件内容
+                        var len: Long = 0
+                        var r: Int
+                        val b = ByteArray(4 * 1024)
+                        val out = FileOutputStream(Constant.FILE_PATH + fileName)
+                        BtServerActivity.blueCallback?.socketNotify(MSG, "正在接收文件($fileName),请稍后...")
+                        while ((dataInputStream.read(b).also { r = it }) != -1) {
+                            out.write(b, 0, r)
+                            len += r.toLong()
+                            if (len >= fileLen) {
+                                break
+                            }
+                        }
+                        BtServerActivity.blueCallback?.socketNotify(MSG, "文件接收完成(存放在:" + Constant.FILE_PATH + ")")
+                    }
+                }
+            }
+        } catch (e: Throwable) {
+            Log.d("__close-5","${e.fillInStackTrace().message}")
+            close()
+        }
+    }
+
+
 }
 
 

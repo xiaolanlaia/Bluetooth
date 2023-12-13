@@ -1,5 +1,6 @@
 package win.lioil.bluetooth.util
 
+import android.os.Environment
 import java.util.UUID
 
 /**
@@ -25,5 +26,6 @@ const val FLAG_FILE = 1
 object Constant {
 
     val SPP_UUID: UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB")
+    val FILE_PATH = Environment.getExternalStorageDirectory().absolutePath + "/bluetooth/"
 
 }

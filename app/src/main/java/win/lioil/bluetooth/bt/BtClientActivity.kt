@@ -14,12 +14,17 @@ import win.lioil.bluetooth.MyApplication
 import win.lioil.bluetooth.R
 import win.lioil.bluetooth.bt.callback.BlueCallback
 import win.lioil.bluetooth.bt.receiver.BlueReceiver
-import win.lioil.bluetooth.bt.terminal.BtClient
 import win.lioil.bluetooth.util.BlueUtils
 import win.lioil.bluetooth.util.CONNECTED
+import win.lioil.bluetooth.util.Constant
 import win.lioil.bluetooth.util.DISCONNECTED
+import win.lioil.bluetooth.util.FLAG_FILE
+import win.lioil.bluetooth.util.FLAG_MSG
 import win.lioil.bluetooth.util.MSG
-import java.io.File
+import win.lioil.bluetooth.util.ThreadPoolUtils
+import win.lioil.bluetooth.util.Util
+import java.io.DataInputStream
+import java.io.FileOutputStream
 
 @SuppressLint("MissingPermission")
 class BtClientActivity : Activity(), BlueCallback, BtDevAdapter.Listener {
@@ -27,6 +32,7 @@ class BtClientActivity : Activity(), BlueCallback, BtDevAdapter.Listener {
     companion object {
         var blueCallback: BlueCallback? = null
     }
+    private var isRead = false
 
     private var mTips: TextView? = null
     private var mInputMsg: EditText? = null
@@ -34,7 +40,6 @@ class BtClientActivity : Activity(), BlueCallback, BtDevAdapter.Listener {
     private var mLogs: TextView? = null
     private var mBlueReceiver: BlueReceiver? = null
     private val mBtDevAdapter = BtDevAdapter(this)
-    private val mClient = BtClient(this)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_btclient)
@@ -54,17 +59,16 @@ class BtClientActivity : Activity(), BlueCallback, BtDevAdapter.Listener {
     override fun onDestroy() {
         super.onDestroy()
         unregisterReceiver(mBlueReceiver)
-        mClient.release()
-        mClient.close()
+        close()
     }
 
     override fun onItemClick(dev: BluetoothDevice) {
-        if (BlueUtils.instance.isConnected(dev)) {
+        if (BlueUtils.instance.isConnected(dev,false)) {
             MyApplication.toast("已经连接了", 0)
             return
         }
         BlueUtils.instance.bluetoothSocket(dev)
-        mClient.connect()
+        connect()
         MyApplication.toast("正在连接...", 0)
         mTips!!.text = "正在连接..."
     }
@@ -75,29 +79,11 @@ class BtClientActivity : Activity(), BlueCallback, BtDevAdapter.Listener {
     }
 
     fun sendMsg(view: View?) {
-        if (BlueUtils.instance.isConnected(null)) {
-            val msg = mInputMsg!!.text.toString()
-            if (TextUtils.isEmpty(msg)) {
-                MyApplication.toast("消息不能空", 0)
-            } else {
-                BlueUtils.instance.sendMsg(msg)
-            }
-        } else {
-            MyApplication.toast("没有连接", 0)
-        }
+        BlueUtils.instance.sendMsg(mInputMsg!!.text.toString(),false)
     }
 
     fun sendFile(view: View?) {
-        if (BlueUtils.instance.isConnected(null)) {
-            val filePath = mInputFile!!.text.toString()
-            if (TextUtils.isEmpty(filePath) || !File(filePath).isFile) {
-                MyApplication.toast("文件无效", 0)
-            } else {
-                BlueUtils.instance.sendFile(filePath)
-            }
-        } else {
-            MyApplication.toast("没有连接", 0)
-        }
+        BlueUtils.instance.sendFile(mInputFile!!.text.toString(),false)
     }
 
     override fun socketNotify(state: Int, obj: Any?) {
@@ -137,5 +123,69 @@ class BtClientActivity : Activity(), BlueCallback, BtDevAdapter.Listener {
     override fun bondSuccess() {}
     override fun connected() {}
     override fun disconnected() {}
+
+    fun close(){
+
+        isRead = false
+        BlueUtils.instance.close()
+        socketNotify(DISCONNECTED, null)
+    }
+
+    fun connect() {
+        try {
+            // 开启子线程
+            ThreadPoolUtils.cachedThreadPool.execute {
+                loopRead(false) //循环读取
+            }
+        } catch (e: Throwable) {
+            close()
+        }
+    }
+
+    /**
+     * 循环读取对方数据(若没有数据，则阻塞等待)
+     */
+    fun loopRead(isServer : Boolean) {
+        val mSocket = BlueUtils.instance.getBluetoothSocket(isServer)
+        try {
+
+            socketNotify(CONNECTED, mSocket!!.remoteDevice)
+            val dataInputStream = DataInputStream(mSocket!!.inputStream)
+            isRead = true
+            //死循环读取
+            while (isRead) {
+                when (dataInputStream.readInt()) {
+                    FLAG_MSG -> {
+                        val msg = dataInputStream.readUTF()
+                        socketNotify(MSG, "接收短消息：$msg")
+                    }
+
+                    FLAG_FILE -> {
+                        Util.mkdirs(Constant.FILE_PATH)
+                        //文件名
+                        val fileName = dataInputStream.readUTF()
+                        //文件长度
+                        val fileLen = dataInputStream.readLong()
+                        // 读取文件内容
+                        var len: Long = 0
+                        var r: Int
+                        val b = ByteArray(4 * 1024)
+                        val out = FileOutputStream(Constant.FILE_PATH + fileName)
+                        socketNotify(MSG, "正在接收文件($fileName),请稍后...")
+                        while ((dataInputStream.read(b).also { r = it }) != -1) {
+                            out.write(b, 0, r)
+                            len += r.toLong()
+                            if (len >= fileLen) {
+                                break
+                            }
+                        }
+                        socketNotify(MSG, "文件接收完成(存放在:" + Constant.FILE_PATH + ")")
+                    }
+                }
+            }
+        } catch (e: Throwable) {
+            close()
+        }
+    }
 
 }
