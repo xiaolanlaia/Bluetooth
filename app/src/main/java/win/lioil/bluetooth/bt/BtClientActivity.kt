@@ -62,7 +62,7 @@ class BtClientActivity : Activity(), BlueCallback, BtDevAdapter.Listener {
     }
 
     override fun onItemClick(dev: BluetoothDevice) {
-        if (BlueUtils.instance.isConnected(dev,false)) {
+        if (BlueUtils.instance.isConnected(dev)) {
             MyApplication.toast("已经连接了", 0)
             return
         }
@@ -144,7 +144,7 @@ class BtClientActivity : Activity(), BlueCallback, BtDevAdapter.Listener {
         try {
             // 开启子线程
             ThreadPoolUtils.cachedThreadPool.execute {
-                loopRead(false) //循环读取
+                loopRead() //循环读取
             }
         } catch (e: Throwable) {
             close()
@@ -154,8 +154,8 @@ class BtClientActivity : Activity(), BlueCallback, BtDevAdapter.Listener {
     /**
      * 循环读取对方数据(若没有数据，则阻塞等待)
      */
-    fun loopRead(isServer : Boolean) {
-        val mSocket = BlueUtils.instance.getBluetoothSocket(isServer)
+    fun loopRead() {
+        val mSocket = BlueUtils.instance.getBluetoothSocket()
         try {
 
             socketNotify(CONNECTED, mSocket!!.remoteDevice)

@@ -29,7 +29,6 @@ class BlueUtils {
     }
 
     private val bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
-    private var connectedDevice : BluetoothDevice? = null
     private var bluetoothSocket : BluetoothSocket? = null
     private var bluetoothServerSocket : BluetoothServerSocket? = null
 
@@ -71,12 +70,12 @@ class BlueUtils {
     }
 
     //当前设备与指定设备是否连接
-    fun isConnected(dev: BluetoothDevice?, isServer : Boolean): Boolean {
-        val connected = (getBluetoothSocket(isServer) != null && getBluetoothSocket(isServer)!!.isConnected)
+    fun isConnected(dev: BluetoothDevice?): Boolean {
+        val connected = (getBluetoothSocket() != null && getBluetoothSocket()!!.isConnected)
         return if (dev == null) {
             connected
         } else {
-            connected && (getBluetoothSocket(isServer)!!.remoteDevice == dev)
+            connected && (getBluetoothSocket()!!.remoteDevice == dev)
         }
     }
 
@@ -90,7 +89,6 @@ class BlueUtils {
             bluetoothSocket!!.connect()
         }
         dataOutputStream = DataOutputStream(bluetoothSocket?.outputStream)
-        connectedDevice = device
     }
 
     //创建 bluetoothServerSocket，建立连接
@@ -106,13 +104,21 @@ class BlueUtils {
             }
             dataOutputStream = DataOutputStream(bluetoothSocket?.outputStream)
 
-            loopRead(true)
+            loopRead()
         }).start()
         return bluetoothServerSocket!!
     }
 
-    fun getBluetoothSocket(isServer : Boolean) : BluetoothSocket?{
+    fun getBluetoothSocket() : BluetoothSocket?{
         return bluetoothSocket
+    }
+
+    fun getConnectedDevice() : BluetoothDevice?{
+        return bluetoothSocket?.remoteDevice
+    }
+
+    fun getBondDevice() : Set<BluetoothDevice>{
+        return bluetoothAdapter.bondedDevices
     }
 
 
@@ -121,7 +127,7 @@ class BlueUtils {
      * 发送短消息
      */
     fun sendMsg(msg: String,isServer: Boolean) {
-        if (!isConnected(null,isServer)) {
+        if (!isConnected(null)) {
             MyApplication.toast("没有连接", 0)
             return
         }
@@ -157,7 +163,7 @@ class BlueUtils {
      */
     fun sendFile(filePath: String, isServer : Boolean) {
 
-        if (!isConnected(null,isServer)) {
+        if (!isConnected(null)) {
             MyApplication.toast("没有连接", 0)
             return
         }
@@ -234,11 +240,10 @@ class BlueUtils {
     /**
      * 循环读取对方数据(若没有数据，则阻塞等待)
      */
-    fun loopRead(isServer : Boolean) {
-        val mSocket = getBluetoothSocket(isServer)
+    fun loopRead() {
+        val mSocket = getBluetoothSocket()
         try {
 
-//            connectedDevice = mSocket?.remoteDevice
             BtServerActivity.blueCallback?.socketNotify(CONNECTED, mSocket?.remoteDevice)
             val dataInputStream = DataInputStream(mSocket?.inputStream)
             isRead = true

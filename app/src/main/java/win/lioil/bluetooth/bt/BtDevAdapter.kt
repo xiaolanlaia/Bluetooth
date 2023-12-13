@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import win.lioil.bluetooth.R
+import win.lioil.bluetooth.util.BlueUtils
 
 @SuppressLint("MissingPermission")
 class BtDevAdapter internal constructor(private val mListener: Listener) :
@@ -20,7 +21,7 @@ class BtDevAdapter internal constructor(private val mListener: Listener) :
     }
 
     private fun addBound() {
-        val bondedDevices = BluetoothAdapter.getDefaultAdapter().bondedDevices
+        val bondedDevices = BlueUtils.instance.getBondDevice()
         if (bondedDevices != null) {
             mDevices.addAll(bondedDevices)
         }
