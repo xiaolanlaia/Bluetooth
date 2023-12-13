@@ -33,12 +33,13 @@ class BtServerActivity : Activity(), BlueCallback {
         mInputMsg = findViewById(R.id.input_msg)
         mInputFile = findViewById(R.id.input_file)
         mLogs = findViewById(R.id.tv_log)
-        listen()
+        BlueUtils.instance.bluetoothServerSocket()
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        close()
+        BlueUtils.instance.close()
+        socketNotify(DISCONNECTED, null)
     }
 
     fun sendMsg(view: View?) {
@@ -66,7 +67,7 @@ class BtServerActivity : Activity(), BlueCallback {
 
                 DISCONNECTED -> {
                     runOnUiThread {
-                        listen()
+                        BlueUtils.instance.bluetoothServerSocket()
                         msg = "连接断开,正在重新监听..."
                         mTips!!.text = msg
                     }
@@ -95,21 +96,4 @@ class BtServerActivity : Activity(), BlueCallback {
     override fun disconnected() {}
 
 
-
-    /**
-     * 监听客户端发起的连接
-     */
-    fun listen() {
-        try {
-            BlueUtils.instance.bluetoothServerSocket()
-        } catch (e: Throwable) {
-            close()
-        }
-    }
-
-    fun close(){
-
-        BlueUtils.instance.close()
-        socketNotify(DISCONNECTED, null)
-    }
 }

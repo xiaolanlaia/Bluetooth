@@ -1,7 +1,6 @@
 package win.lioil.bluetooth.bt
 
 import android.annotation.SuppressLint
-import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.view.LayoutInflater
 import android.view.View
@@ -57,10 +56,7 @@ class BtDevAdapter internal constructor(private val mListener: Listener) :
     fun reScan() {
         mDevices.clear()
         addBound()
-        val bt = BluetoothAdapter.getDefaultAdapter()
-        if (!bt.isDiscovering) {
-            bt.startDiscovery()
-        }
+        BlueUtils.instance.scan()
         notifyDataSetChanged()
     }
 
