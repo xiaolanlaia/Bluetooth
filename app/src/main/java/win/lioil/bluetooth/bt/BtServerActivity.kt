@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.bluetooth.BluetoothDevice
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.EditText
 import android.widget.TextView
@@ -39,7 +38,6 @@ class BtServerActivity : Activity(), BlueCallback {
 
     override fun onDestroy() {
         super.onDestroy()
-        Log.d("__close-4","1")
         close()
     }
 
@@ -105,15 +103,12 @@ class BtServerActivity : Activity(), BlueCallback {
         try {
             BlueUtils.instance.bluetoothServerSocket()
         } catch (e: Throwable) {
-            Log.d("__listen-e","${e.message}")
-            Log.d("__close-2","1")
             close()
         }
     }
 
     fun close(){
 
-        Log.d("__close-1","1")
         BlueUtils.instance.close()
         socketNotify(DISCONNECTED, null)
     }

@@ -6,7 +6,6 @@ import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothServerSocket
 import android.bluetooth.BluetoothSocket
 import android.text.TextUtils
-import android.util.Log
 import win.lioil.bluetooth.MyApplication
 import win.lioil.bluetooth.bt.BtClientActivity
 import win.lioil.bluetooth.bt.BtServerActivity
@@ -275,7 +274,6 @@ class BlueUtils {
                 }
             }
         } catch (e: Throwable) {
-            Log.d("__close-5","${e.fillInStackTrace().message}")
             close()
         }
     }
