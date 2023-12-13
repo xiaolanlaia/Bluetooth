@@ -93,22 +93,32 @@ class BtClientActivity : Activity(), BlueCallback, BtDevAdapter.Listener {
         var msg: String? = null
         when (state) {
             CONNECTED -> {
-                val dev = obj as BluetoothDevice?
-                msg = String.format("与%s(%s)连接成功", dev!!.name, dev.address)
-                mTips!!.text = msg
+                runOnUiThread {
+                    val dev = obj as BluetoothDevice?
+                    msg = String.format("与%s(%s)连接成功", dev?.name, dev?.address)
+                    mTips!!.text = msg
+                }
             }
 
             DISCONNECTED -> {
-                msg = "连接断开"
-                mTips!!.text = msg
+                runOnUiThread {
+                    msg = "连接断开"
+                    mTips!!.text = msg
+                }
             }
 
             MSG -> {
-                msg = String.format("\n%s", obj)
-                mLogs!!.append(msg)
+                runOnUiThread {
+
+                    msg = String.format("\n%s", obj)
+                    mLogs!!.append(msg)
+                }
             }
         }
-        MyApplication.toast(msg, 0)
+        runOnUiThread {
+            MyApplication.toast(msg, 0)
+
+        }
     }
 
     override fun scanStarted() {}

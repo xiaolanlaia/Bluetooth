@@ -59,23 +59,30 @@ class BtServerActivity : Activity(), BlueCallback {
             var msg: String? = null
             when (state) {
                 CONNECTED -> {
-                    val dev = obj as BluetoothDevice?
-                    msg = String.format("与%s(%s)连接成功", dev!!.name, dev.address)
-                    mTips!!.text = msg
+                    runOnUiThread {
+                        val dev = obj as BluetoothDevice?
+                        msg = String.format("与%s(%s)连接成功", dev!!.name, dev.address)
+                        mTips!!.text = msg
+                    }
                 }
 
                 DISCONNECTED -> {
-                    listen()
-                    msg = "连接断开,正在重新监听..."
-                    mTips!!.text = msg
+                    runOnUiThread {
+                        listen()
+                        msg = "连接断开,正在重新监听..."
+                        mTips!!.text = msg
+                    }
                 }
-
                 MSG -> {
-                    msg = String.format("\n%s", obj)
-                    mLogs!!.append(msg)
+                    runOnUiThread {
+                        msg = String.format("\n%s", obj)
+                        mLogs!!.append(msg)
+                    }
                 }
             }
-            MyApplication.toast(msg, 0)
+            runOnUiThread {
+                MyApplication.toast(msg, 0)
+            }
         })
     }
 
