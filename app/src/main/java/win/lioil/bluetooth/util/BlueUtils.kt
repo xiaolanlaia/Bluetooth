@@ -1,10 +1,13 @@
 package win.lioil.bluetooth.util
 
+import android.Manifest
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothServerSocket
 import android.bluetooth.BluetoothSocket
+import android.os.Build
 import android.text.TextUtils
 import win.lioil.bluetooth.MyApplication
 import win.lioil.bluetooth.bt.BtClientActivity
@@ -38,6 +41,25 @@ class BlueUtils {
 
     private var dataOutputStream: DataOutputStream? = null
 
+    /**
+     * 请求权限
+     */
+    fun requestPermission(activity: Activity, requestCode : Int){
+        val permissionList = ArrayList<String>()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            permissionList.add(Manifest.permission.BLUETOOTH)
+            permissionList.add(Manifest.permission.BLUETOOTH_ADMIN)
+            permissionList.add(Manifest.permission.ACCESS_FINE_LOCATION)
+            permissionList.add(Manifest.permission.ACCESS_COARSE_LOCATION)
+
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S){
+            permissionList.add(Manifest.permission.BLUETOOTH_CONNECT)
+            permissionList.add(Manifest.permission.BLUETOOTH_SCAN)
+            permissionList.add(Manifest.permission.BLUETOOTH_ADVERTISE)
+        }
+        PermissionUtil.requestPermissions(activity,permissionList,requestCode)
+    }
 
     //设备是否支持蓝牙
     fun isSupport() : Boolean{
@@ -51,6 +73,8 @@ class BlueUtils {
 
     //开启蓝牙
     fun enable(){
+
+        if (isEnabled()) return
         try {
             bluetoothAdapter.enable()
         } catch (e: Exception) {
