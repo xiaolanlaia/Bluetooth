@@ -1,9 +1,8 @@
 package win.lioil.bluetooth.bt.terminal
 
 import android.annotation.SuppressLint
-import android.bluetooth.BluetoothDevice
 import win.lioil.bluetooth.bt.callback.BlueCallback
-import win.lioil.bluetooth.util.Constant.SPP_UUID
+import win.lioil.bluetooth.util.BlueUtils
 import win.lioil.bluetooth.util.ThreadPoolUtils
 
 /**
@@ -14,16 +13,13 @@ class BtClient internal constructor(blueCallback: BlueCallback) : BtBase(blueCal
     /**
      * 与远端设备建立长连接
      *
-     * @param dev 远端设备
+     * @param device 远端设备
      */
-    fun connect(dev: BluetoothDevice) {
-        close()
+    fun connect() {
         try {
-//             final BluetoothSocket socket = dev.createRfcommSocketToServiceRecord(SPP_UUID); //加密传输，Android系统强制配对，弹窗显示配对码
-            val socket = dev.createInsecureRfcommSocketToServiceRecord(SPP_UUID) //明文传输(不安全)，无需配对
             // 开启子线程
             ThreadPoolUtils.cachedThreadPool.execute {
-                loopRead(socket) //循环读取
+                loopRead(false) //循环读取
             }
         } catch (e: Throwable) {
             close()

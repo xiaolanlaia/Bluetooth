@@ -37,7 +37,7 @@ class MainActivity : Activity() {
         PermissionUtil.requestPermissions(this,permissionList,REQUEST_CODE)
 
 
-        if (BlueUtils.instance.isSupport()) {
+        if (!BlueUtils.instance.isSupport()) {
             MyApplication.toast("本机没有找到蓝牙硬件或驱动！", 0)
             finish()
             return
