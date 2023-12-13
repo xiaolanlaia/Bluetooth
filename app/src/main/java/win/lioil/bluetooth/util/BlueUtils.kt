@@ -253,7 +253,11 @@ class BlueUtils {
         val mSocket = getBluetoothSocket()
         try {
 
-            BtServerActivity.blueCallback?.socketNotify(CONNECTED, mSocket?.remoteDevice)
+            if(isServer){
+                BtServerActivity.blueCallback?.socketNotify(CONNECTED, mSocket?.remoteDevice)
+            }else{
+                BtClientActivity.blueCallback?.socketNotify(CONNECTED, mSocket?.remoteDevice)
+            }
             val dataInputStream = DataInputStream(mSocket?.inputStream)
             isRead = true
             //死循环读取

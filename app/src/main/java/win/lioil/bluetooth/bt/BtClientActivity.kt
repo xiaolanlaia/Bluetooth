@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.bluetooth.BluetoothDevice
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.EditText
 import android.widget.TextView
@@ -110,17 +111,33 @@ class BtClientActivity : Activity(), BlueCallback, BtDevAdapter.Listener {
         }
     }
 
-    override fun scanStarted() {}
-    override fun scanFinished() {}
+    override fun scanStarted() {
+        Log.d("__receive-scanStarted","1")
+    }
+    override fun scanFinished() {
+        Log.d("__receive-scanFinished","1")
+    }
     override fun scanning(device: BluetoothDevice) {
         mBtDevAdapter.add(device)
     }
 
-    override fun bondRequest() {}
-    override fun bondFail() {}
-    override fun bonding() {}
-    override fun bondSuccess() {}
-    override fun connected() {}
-    override fun disconnected() {}
+    override fun bondRequest() {
+        Log.d("__receive-bondRequest","1")
+    }
+    override fun bondFail() {
+        Log.d("__receive-bondFail","1")
+    }
+    override fun bonding() {
+        Log.d("__receive-bonding","1")
+    }
+    override fun bondSuccess() {
+        Log.d("__receive-bondSuccess","1")
+    }
+    override fun connected() {
+        Log.d("__receive-connected","1")
+    }
+    override fun disconnected() {
+        Log.d("__receive-disconnected","1")
+    }
 
 }
