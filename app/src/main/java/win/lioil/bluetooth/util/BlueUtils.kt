@@ -259,9 +259,11 @@ class BlueUtils {
      */
     fun close() {
         try {
+            dataOutputStream?.close()
             bluetoothSocket?.close()
             bluetoothServerSocket?.close()
             isRead = false
+            isSending = false
 
         } catch (e: Throwable) {
             e.printStackTrace()
