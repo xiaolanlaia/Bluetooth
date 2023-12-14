@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="2dp"
-    tools:context=".ble.BleClientActivity">
+    tools:context=".ble.terminal.BleClientActivity">
 
     <Button
         android:id="@+id/btn_scan"

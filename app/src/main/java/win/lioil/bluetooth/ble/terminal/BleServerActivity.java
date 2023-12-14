@@ -1,4 +1,4 @@
-package win.lioil.bluetooth.ble;
+package win.lioil.bluetooth.ble.terminal;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;

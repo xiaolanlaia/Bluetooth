@@ -4,8 +4,8 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
-import win.lioil.bluetooth.ble.BleClientActivity
-import win.lioil.bluetooth.ble.BleServerActivity
+import win.lioil.bluetooth.ble.terminal.BleClientActivity
+import win.lioil.bluetooth.ble.terminal.BleServerActivity
 import win.lioil.bluetooth.bt.terminal.BtClientActivity
 import win.lioil.bluetooth.bt.terminal.BtServerActivity
 import win.lioil.bluetooth.bt.utils.BlueUtils
