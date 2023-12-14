@@ -1,4 +1,4 @@
-package win.lioil.bluetooth.bt
+package win.lioil.bluetooth.bt.terminal
 
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothDevice
@@ -8,7 +8,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import win.lioil.bluetooth.R
-import win.lioil.bluetooth.util.BlueUtils
+import win.lioil.bluetooth.bt.utils.BlueUtils
 
 @SuppressLint("MissingPermission")
 class BtDevAdapter internal constructor(private val mListener: Listener) :

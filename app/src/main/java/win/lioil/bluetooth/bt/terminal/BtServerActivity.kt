@@ -1,4 +1,4 @@
-package win.lioil.bluetooth.bt
+package win.lioil.bluetooth.bt.terminal
 
 import android.annotation.SuppressLint
 import android.app.Activity
@@ -10,7 +10,7 @@ import android.widget.TextView
 import win.lioil.bluetooth.MyApplication
 import win.lioil.bluetooth.R
 import win.lioil.bluetooth.bt.callback.BlueCallback
-import win.lioil.bluetooth.util.BlueUtils
+import win.lioil.bluetooth.bt.utils.BlueUtils
 import win.lioil.bluetooth.util.BLUE_CONNECTED
 import win.lioil.bluetooth.util.BLUE_DISCONNECTED
 import win.lioil.bluetooth.util.BLUE_MSG

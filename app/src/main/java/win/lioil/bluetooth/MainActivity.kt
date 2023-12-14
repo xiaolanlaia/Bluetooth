@@ -2,14 +2,13 @@ package win.lioil.bluetooth
 
 import android.app.Activity
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.View
 import win.lioil.bluetooth.ble.BleClientActivity
 import win.lioil.bluetooth.ble.BleServerActivity
-import win.lioil.bluetooth.bt.BtClientActivity
-import win.lioil.bluetooth.bt.BtServerActivity
-import win.lioil.bluetooth.util.BlueUtils
+import win.lioil.bluetooth.bt.terminal.BtClientActivity
+import win.lioil.bluetooth.bt.terminal.BtServerActivity
+import win.lioil.bluetooth.bt.utils.BlueUtils
 
 class MainActivity : Activity() {
     private val REQUEST_CODE = 1

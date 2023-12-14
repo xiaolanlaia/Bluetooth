@@ -1,4 +1,4 @@
-package win.lioil.bluetooth.util
+package win.lioil.bluetooth.bt.utils
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -10,8 +10,17 @@ import android.bluetooth.BluetoothSocket
 import android.os.Build
 import android.text.TextUtils
 import win.lioil.bluetooth.MyApplication
-import win.lioil.bluetooth.bt.BtClientActivity
-import win.lioil.bluetooth.bt.BtServerActivity
+import win.lioil.bluetooth.bt.terminal.BtClientActivity
+import win.lioil.bluetooth.bt.terminal.BtServerActivity
+import win.lioil.bluetooth.util.BLUE_CONNECTED
+import win.lioil.bluetooth.util.BLUE_FLAG_FILE
+import win.lioil.bluetooth.util.BLUE_FLAG_MSG
+import win.lioil.bluetooth.util.BLUE_MSG
+import win.lioil.bluetooth.util.Constant
+import win.lioil.bluetooth.util.ExceptionUtils
+import win.lioil.bluetooth.util.PermissionUtil
+import win.lioil.bluetooth.util.ThreadPoolUtils
+import win.lioil.bluetooth.util.Util
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import java.io.File
@@ -58,7 +67,7 @@ class BlueUtils {
             permissionList.add(Manifest.permission.BLUETOOTH_SCAN)
             permissionList.add(Manifest.permission.BLUETOOTH_ADVERTISE)
         }
-        PermissionUtil.requestPermissions(activity,permissionList,requestCode)
+        PermissionUtil.requestPermissions(activity, permissionList, requestCode)
     }
 
     //设备是否支持蓝牙
@@ -128,7 +137,9 @@ class BlueUtils {
     fun bluetoothServerSocket() : BluetoothServerSocket{
         //            mSSocket = adapter.listenUsingRfcommWithServiceRecord(TAG, SPP_UUID); //加密传输，Android强制执行配对，弹窗显示配对码
         //明文传输(不安全)，无需配对
-        bluetoothServerSocket = bluetoothAdapter.listenUsingInsecureRfcommWithServiceRecord("TAG", Constant.SPP_UUID)
+        bluetoothServerSocket = bluetoothAdapter.listenUsingInsecureRfcommWithServiceRecord("TAG",
+            Constant.SPP_UUID
+        )
 
         Thread(Runnable {
             bluetoothSocket = bluetoothServerSocket?.accept()
