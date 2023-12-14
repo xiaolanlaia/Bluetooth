@@ -30,13 +30,6 @@ class MainActivity : Activity() {
             //跳转到设置界面
             //startActivityForResult(new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE), 112);
         }
-
-        // 检查是否支持BLE蓝牙
-        if (!packageManager.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
-            MyApplication.toast("本机不支持低功耗蓝牙！", 0)
-            finish()
-            return
-        }
     }
 
     fun btClient(view: View?) {

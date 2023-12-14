@@ -11,9 +11,9 @@ import win.lioil.bluetooth.MyApplication
 import win.lioil.bluetooth.R
 import win.lioil.bluetooth.bt.callback.BlueCallback
 import win.lioil.bluetooth.util.BlueUtils
-import win.lioil.bluetooth.util.CONNECTED
-import win.lioil.bluetooth.util.DISCONNECTED
-import win.lioil.bluetooth.util.MSG
+import win.lioil.bluetooth.util.BLUE_CONNECTED
+import win.lioil.bluetooth.util.BLUE_DISCONNECTED
+import win.lioil.bluetooth.util.BLUE_MSG
 
 @SuppressLint("MissingPermission")
 class BtServerActivity : Activity(), BlueCallback {
@@ -39,7 +39,7 @@ class BtServerActivity : Activity(), BlueCallback {
     override fun onDestroy() {
         super.onDestroy()
         BlueUtils.instance.close()
-        socketNotify(DISCONNECTED, null)
+        socketNotify(BLUE_DISCONNECTED, null)
     }
 
     fun sendMsg(view: View?) {
@@ -57,7 +57,7 @@ class BtServerActivity : Activity(), BlueCallback {
             }
             var msg: String? = null
             when (state) {
-                CONNECTED -> {
+                BLUE_CONNECTED -> {
                     runOnUiThread {
                         val dev = obj as BluetoothDevice?
                         msg = String.format("与%s(%s)连接成功", dev!!.name, dev.address)
@@ -65,14 +65,14 @@ class BtServerActivity : Activity(), BlueCallback {
                     }
                 }
 
-                DISCONNECTED -> {
+                BLUE_DISCONNECTED -> {
                     runOnUiThread {
                         BlueUtils.instance.bluetoothServerSocket()
                         msg = "连接断开,正在重新监听..."
                         mTips!!.text = msg
                     }
                 }
-                MSG -> {
+                BLUE_MSG -> {
                     runOnUiThread {
                         msg = String.format("\n%s", obj)
                         mLogs!!.append(msg)

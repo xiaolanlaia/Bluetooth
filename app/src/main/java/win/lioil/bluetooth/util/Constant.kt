@@ -12,14 +12,14 @@ import java.util.UUID
 
 
 
-const val DISCONNECTED = 0
-const val CONNECTED = 1
-const val MSG = 2
+const val BLUE_DISCONNECTED = 0
+const val BLUE_CONNECTED = 1
+const val BLUE_MSG = 2
 
 //消息标记
-const val FLAG_MSG = 0
+const val BLUE_FLAG_MSG = 0
 //文件标记
-const val FLAG_FILE = 1
+const val BLUE_FLAG_FILE = 1
 
 
 

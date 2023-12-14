@@ -1,6 +1,8 @@
 package win.lioil.bluetooth.bt.callback
 
 import android.bluetooth.BluetoothDevice
+import win.lioil.bluetooth.util.ExceptionUtils
+import java.lang.NullPointerException
 
 /**
  * @Description
@@ -9,6 +11,22 @@ import android.bluetooth.BluetoothDevice
  *
  */
 
+object BlueCallbackImpl{
+    var mBlueCallback : BlueCallback? = null
+    fun setBlueCallback(blueCallback : BlueCallback) : BlueCallback {
+        mBlueCallback = blueCallback
+        return blueCallback
+    }
+
+    fun getBlueCallback() : BlueCallback {
+        if (mBlueCallback == null){
+            ExceptionUtils.instance.getCashHandler().uncaughtException(Thread.currentThread(),Throwable(
+                NullPointerException()
+            ))
+        }
+        return mBlueCallback!!
+    }
+}
 interface BlueCallback {
 
     //开启扫描

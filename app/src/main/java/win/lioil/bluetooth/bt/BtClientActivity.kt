@@ -15,9 +15,9 @@ import win.lioil.bluetooth.R
 import win.lioil.bluetooth.bt.callback.BlueCallback
 import win.lioil.bluetooth.bt.receiver.BlueReceiver
 import win.lioil.bluetooth.util.BlueUtils
-import win.lioil.bluetooth.util.CONNECTED
-import win.lioil.bluetooth.util.DISCONNECTED
-import win.lioil.bluetooth.util.MSG
+import win.lioil.bluetooth.util.BLUE_CONNECTED
+import win.lioil.bluetooth.util.BLUE_DISCONNECTED
+import win.lioil.bluetooth.util.BLUE_MSG
 
 @SuppressLint("MissingPermission")
 class BtClientActivity : Activity(), BlueCallback, BtDevAdapter.Listener {
@@ -46,13 +46,14 @@ class BtClientActivity : Activity(), BlueCallback, BtDevAdapter.Listener {
         //注册蓝牙广播
         mBlueReceiver = BlueReceiver(this, this)
         BlueUtils.instance.scan()
+
     }
 
     override fun onDestroy() {
         super.onDestroy()
         unregisterReceiver(mBlueReceiver)
         BlueUtils.instance.close()
-        socketNotify(DISCONNECTED, null)
+        socketNotify(BLUE_DISCONNECTED, null)
     }
 
     override fun onItemClick(dev: BluetoothDevice) {
@@ -82,7 +83,7 @@ class BtClientActivity : Activity(), BlueCallback, BtDevAdapter.Listener {
         }
         var msg: String? = null
         when (state) {
-            CONNECTED -> {
+            BLUE_CONNECTED -> {
                 runOnUiThread {
                     val dev = obj as BluetoothDevice?
                     msg = String.format("与%s(%s)连接成功", dev?.name, dev?.address)
@@ -90,14 +91,14 @@ class BtClientActivity : Activity(), BlueCallback, BtDevAdapter.Listener {
                 }
             }
 
-            DISCONNECTED -> {
+            BLUE_DISCONNECTED -> {
                 runOnUiThread {
                     msg = "连接断开"
                     mTips!!.text = msg
                 }
             }
 
-            MSG -> {
+            BLUE_MSG -> {
                 runOnUiThread {
 
                     msg = String.format("\n%s", obj)

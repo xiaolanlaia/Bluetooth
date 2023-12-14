@@ -177,13 +177,13 @@ class BlueUtils {
         isSending = true
         try {
             //消息标记
-            dataOutputStream!!.writeInt(FLAG_MSG)
+            dataOutputStream!!.writeInt(BLUE_FLAG_MSG)
             dataOutputStream!!.writeUTF(msg)
             dataOutputStream!!.flush()
             if(isServer){
-                BtServerActivity.blueCallback?.socketNotify(MSG, "发送短消息：$msg")
+                BtServerActivity.blueCallback?.socketNotify(BLUE_MSG, "发送短消息：$msg")
             }else{
-                BtClientActivity.blueCallback?.socketNotify(MSG, "发送短消息：$msg")
+                BtClientActivity.blueCallback?.socketNotify(BLUE_MSG, "发送短消息：$msg")
             }
         } catch (e: Throwable) {
             close()
@@ -215,7 +215,7 @@ class BlueUtils {
                 val fileInputStream = FileInputStream(filePath)
                 val file = File(filePath)
                 //文件标记
-                dataOutputStream!!.writeInt(FLAG_FILE)
+                dataOutputStream!!.writeInt(BLUE_FLAG_FILE)
                 //文件名
                 dataOutputStream!!.writeUTF(file.name)
                 //文件长度
@@ -223,9 +223,9 @@ class BlueUtils {
                 var r: Int
                 val b = ByteArray(4 * 1024)
                 if(isServer){
-                    BtServerActivity.blueCallback?.socketNotify(MSG, "正在发送文件($filePath),请稍后...")
+                    BtServerActivity.blueCallback?.socketNotify(BLUE_MSG, "正在发送文件($filePath),请稍后...")
                 }else{
-                    BtClientActivity.blueCallback?.socketNotify(MSG, "正在发送文件($filePath),请稍后...")
+                    BtClientActivity.blueCallback?.socketNotify(BLUE_MSG, "正在发送文件($filePath),请稍后...")
                 }
                 while ((fileInputStream.read(b).also { r = it }) != -1) {
                     dataOutputStream!!.write(b, 0, r)
@@ -233,9 +233,9 @@ class BlueUtils {
                 dataOutputStream!!.flush()
 
                 if(isServer){
-                    BtServerActivity.blueCallback?.socketNotify(MSG, "文件发送完成.")
+                    BtServerActivity.blueCallback?.socketNotify(BLUE_MSG, "文件发送完成.")
                 }else{
-                    BtClientActivity.blueCallback?.socketNotify(MSG, "文件发送完成.")
+                    BtClientActivity.blueCallback?.socketNotify(BLUE_MSG, "文件发送完成.")
                 }
             } catch (e: Throwable) {
                 close()
@@ -280,25 +280,25 @@ class BlueUtils {
         try {
 
             if(isServer){
-                BtServerActivity.blueCallback?.socketNotify(CONNECTED, mSocket?.remoteDevice)
+                BtServerActivity.blueCallback?.socketNotify(BLUE_CONNECTED, mSocket?.remoteDevice)
             }else{
-                BtClientActivity.blueCallback?.socketNotify(CONNECTED, mSocket?.remoteDevice)
+                BtClientActivity.blueCallback?.socketNotify(BLUE_CONNECTED, mSocket?.remoteDevice)
             }
             val dataInputStream = DataInputStream(mSocket?.inputStream)
             isRead = true
             //死循环读取
             while (isRead) {
                 when (dataInputStream.readInt()) {
-                    FLAG_MSG -> {
+                    BLUE_FLAG_MSG -> {
                         val msg = dataInputStream.readUTF()
                         if(isServer){
-                            BtServerActivity.blueCallback?.socketNotify(MSG, "接收短消息：$msg")
+                            BtServerActivity.blueCallback?.socketNotify(BLUE_MSG, "接收短消息：$msg")
                         }else{
-                            BtClientActivity.blueCallback?.socketNotify(MSG, "接收短消息：$msg")
+                            BtClientActivity.blueCallback?.socketNotify(BLUE_MSG, "接收短消息：$msg")
                         }
                     }
 
-                    FLAG_FILE -> {
+                    BLUE_FLAG_FILE -> {
                         Util.mkdirs(Constant.FILE_PATH)
                         //文件名
                         val fileName = dataInputStream.readUTF()
@@ -311,9 +311,9 @@ class BlueUtils {
                         val out = FileOutputStream(Constant.FILE_PATH + fileName)
 
                         if(isServer){
-                            BtServerActivity.blueCallback?.socketNotify(MSG, "正在接收文件($fileName),请稍后...")
+                            BtServerActivity.blueCallback?.socketNotify(BLUE_MSG, "正在接收文件($fileName),请稍后...")
                         }else{
-                            BtClientActivity.blueCallback?.socketNotify(MSG, "正在接收文件($fileName),请稍后...")
+                            BtClientActivity.blueCallback?.socketNotify(BLUE_MSG, "正在接收文件($fileName),请稍后...")
                         }
                         while ((dataInputStream.read(b).also { r = it }) != -1) {
                             out.write(b, 0, r)
@@ -323,9 +323,9 @@ class BlueUtils {
                             }
                         }
                         if(isServer){
-                            BtServerActivity.blueCallback?.socketNotify(MSG, "文件接收完成(存放在:" + Constant.FILE_PATH + ")")
+                            BtServerActivity.blueCallback?.socketNotify(BLUE_MSG, "文件接收完成(存放在:" + Constant.FILE_PATH + ")")
                         }else{
-                            BtClientActivity.blueCallback?.socketNotify(MSG, "文件接收完成(存放在:" + Constant.FILE_PATH + ")")
+                            BtClientActivity.blueCallback?.socketNotify(BLUE_MSG, "文件接收完成(存放在:" + Constant.FILE_PATH + ")")
                         }
                     }
                 }
