@@ -1,12 +1,17 @@
 package win.lioil.bluetooth.ble.utils
 
 import android.annotation.SuppressLint
+import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothGatt
 import android.bluetooth.BluetoothGattDescriptor
 import android.bluetooth.BluetoothGattService
+import android.bluetooth.le.ScanCallback
+import android.bluetooth.le.ScanResult
 import android.content.Context
+import android.os.Handler
 import win.lioil.bluetooth.MyApplication
+import win.lioil.bluetooth.ble.callback.GattCallbackImpl
 import win.lioil.bluetooth.ble.callback.GattCallbackUtils
 import win.lioil.bluetooth.ble.terminal.BleServerActivity
 import java.util.UUID
@@ -26,11 +31,17 @@ class BleUtils private constructor(){
     }
 
     private var isConnected = false
+    private var isScanning = false
 
     private var mBluetoothGatt: BluetoothGatt? = null
 
+    fun getScanState() : Boolean{
+        return isScanning
+    }
+
     // 连接蓝牙设备
     fun connect(context : Context, device : BluetoothDevice){
+        closeConnect()
 
         mBluetoothGatt = device.connectGatt(context, false, GattCallbackUtils.instance.mBluetoothGattCallback)
 
@@ -99,6 +110,34 @@ class BleUtils private constructor(){
 
     fun setConnectState(){
         isConnected = true
+    }
+
+
+    private val mScanCallback: ScanCallback = object : ScanCallback() {
+        // 扫描Callback
+        override fun onScanResult(callbackType: Int, result: ScanResult) {
+
+            GattCallbackImpl.getGattCallback().scanning(BleDev(result.device, result))
+        }
+    }
+
+
+
+    // 扫描BLE蓝牙(不会扫描经典蓝牙)
+    fun scanBle() {
+        try {
+            isScanning = true
+            //        BluetoothAdapter bluetoothAdapter = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE).getDefaultAdapter();
+            val bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
+            val bluetoothLeScanner = bluetoothAdapter.bluetoothLeScanner
+            // Android5.0新增的扫描API，扫描返回的结果更友好，比如BLE广播数据以前是byte[] scanRecord，而新API帮我们解析成ScanRecord类
+            bluetoothLeScanner.startScan(mScanCallback)
+            Handler().postDelayed({
+                bluetoothLeScanner.stopScan(mScanCallback) //停止扫描
+                isScanning = false
+            }, 3000)
+        } catch (e: Exception) {
+        }
     }
 
 }

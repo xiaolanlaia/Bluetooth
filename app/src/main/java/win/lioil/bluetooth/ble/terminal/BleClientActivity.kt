@@ -12,6 +12,7 @@ import win.lioil.bluetooth.MyApplication
 import win.lioil.bluetooth.R
 import win.lioil.bluetooth.ble.callback.GattCallback
 import win.lioil.bluetooth.ble.callback.GattCallbackImpl
+import win.lioil.bluetooth.ble.utils.BleDev
 import win.lioil.bluetooth.ble.utils.BleUtils
 
 /**
@@ -38,7 +39,7 @@ class BleClientActivity : Activity() , GattCallback {
 
     // 扫描BLE
     fun reScan(view: View?) {
-        if (mBleDevAdapter!!.isScanning) {
+        if (BleUtils.instance.getScanState()) {
             MyApplication.toast("正在扫描...", 0)
         } else {
             mBleDevAdapter!!.reScan()
@@ -69,6 +70,10 @@ class BleClientActivity : Activity() , GattCallback {
 
     override fun disConnected() {
         BleUtils.instance.closeConnect()
+    }
+
+    override fun scanning(bleDev: BleDev) {
+        mBleDevAdapter?.updateList(bleDev)
     }
 
 

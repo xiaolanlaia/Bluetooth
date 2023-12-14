@@ -1,5 +1,7 @@
 package win.lioil.bluetooth.ble.callback
 
+import android.bluetooth.le.ScanResult
+import win.lioil.bluetooth.ble.utils.BleDev
 import win.lioil.bluetooth.util.ExceptionUtils
 import java.lang.NullPointerException
 
@@ -11,7 +13,7 @@ import java.lang.NullPointerException
  */
 
 object GattCallbackImpl{
-    var mGattCallback : GattCallback? = null
+    private var mGattCallback : GattCallback? = null
     fun setGattCallback(gattCallback : GattCallback) : GattCallback{
         mGattCallback = gattCallback
         return gattCallback
@@ -28,4 +30,5 @@ interface GattCallback {
 
     fun connected()
     fun disConnected()
+    fun scanning(bleDev: BleDev)
 }
