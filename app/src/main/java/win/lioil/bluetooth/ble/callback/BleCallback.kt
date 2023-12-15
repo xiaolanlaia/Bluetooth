@@ -1,6 +1,5 @@
 package win.lioil.bluetooth.ble.callback
 
-import android.bluetooth.le.ScanResult
 import win.lioil.bluetooth.ble.utils.BleDev
 import win.lioil.bluetooth.util.ExceptionUtils
 import java.lang.NullPointerException
@@ -12,23 +11,24 @@ import java.lang.NullPointerException
  *
  */
 
-object GattCallbackImpl{
-    private var mGattCallback : GattCallback? = null
-    fun setGattCallback(gattCallback : GattCallback) : GattCallback{
-        mGattCallback = gattCallback
-        return gattCallback
+object BleCallbackImpl{
+    private var mBleCallback : BleCallback? = null
+    fun setGattCallback(bleCallback : BleCallback) : BleCallback{
+        mBleCallback = bleCallback
+        return bleCallback
     }
 
-    fun getGattCallback() : GattCallback{
-        if (mGattCallback == null){
+    fun getGattCallback() : BleCallback{
+        if (mBleCallback == null){
             ExceptionUtils.instance.getCashHandler().uncaughtException(Thread.currentThread(),Throwable(NullPointerException()))
         }
-        return mGattCallback!!
+        return mBleCallback!!
     }
 }
-interface GattCallback {
+interface BleCallback {
 
     fun connected()
     fun disConnected()
     fun scanning(bleDev: BleDev)
+    fun notify(msg : String)
 }

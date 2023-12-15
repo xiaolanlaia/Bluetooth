@@ -10,16 +10,17 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import win.lioil.bluetooth.MyApplication
 import win.lioil.bluetooth.R
-import win.lioil.bluetooth.ble.callback.GattCallback
-import win.lioil.bluetooth.ble.callback.GattCallbackImpl
+import win.lioil.bluetooth.ble.callback.BleCallback
+import win.lioil.bluetooth.ble.callback.BleCallbackImpl
 import win.lioil.bluetooth.ble.utils.BleDev
 import win.lioil.bluetooth.ble.utils.BleUtils
+import win.lioil.bluetooth.util.ToastUtils
 
 /**
  * BLE客户端(主机/中心设备/Central)
  */
 @SuppressLint("MissingPermission")
-class BleClientActivity : Activity() , GattCallback {
+class BleClientActivity : Activity(), BleCallback {
     private var mWriteET: EditText? = null
     private var mTips: TextView? = null
     private var mBleDevAdapter: BleDevAdapter? = null
@@ -28,7 +29,7 @@ class BleClientActivity : Activity() , GattCallback {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_bleclient)
-        GattCallbackImpl.setGattCallback(this)
+        BleCallbackImpl.setGattCallback(this)
         val rv = findViewById<RecyclerView>(R.id.rv_ble)
         mWriteET = findViewById(R.id.et_write)
         mTips = findViewById(R.id.tv_tips)
@@ -74,6 +75,13 @@ class BleClientActivity : Activity() , GattCallback {
 
     override fun scanning(bleDev: BleDev) {
         mBleDevAdapter?.updateList(bleDev)
+    }
+
+    override fun notify(msg: String) {
+        runOnUiThread {
+            ToastUtils.show(msg)
+            mTips?.append("\n\n$msg".trimIndent())
+        }
     }
 
 
